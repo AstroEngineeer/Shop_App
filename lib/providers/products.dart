@@ -1,4 +1,4 @@
-import 'package:Shop_App/models/product.dart';
+import 'package:Shop_App/providers/product.dart';
 import 'package:flutter/material.dart';
 
 class Products with ChangeNotifier {
@@ -37,8 +37,22 @@ class Products with ChangeNotifier {
     ),
   ];
 
-  List<Product> get getProducts {
+  bool showFavoriteOnly = false;
+
+  void showFavorite() {
+    showFavoriteOnly = true;
+  }
+
+  void showAll() {
+    showFavoriteOnly = false;
+  }
+
+  List<Product> get getAllProducts {
     return [...items];
+  }
+
+  List<Product> get getFavoriteProducts {
+    return items.where((element) => element.isFavorite == true).toList();
   }
 
   Product getById(String id) {
