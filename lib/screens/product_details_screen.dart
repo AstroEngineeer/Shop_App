@@ -12,7 +12,28 @@ class ProductDetailsScreen extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(item.title),
+        title: Text(item.title + " - ₹" + item.price.toString()),
+      ),
+      body: Column(
+        children: <Widget>[
+          Image.network(
+            item.imageUrl,
+            fit: BoxFit.cover,
+            width: double.infinity,
+          ),
+          Text(
+            item.title,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 30),
+          ),
+          Card(
+            child: Text(
+              item.description,
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 20),
+            ),
+          ),
+        ],
       ),
     );
   }
