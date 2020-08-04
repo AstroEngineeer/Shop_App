@@ -1,5 +1,26 @@
-import 'package:Shop_App/providers/product.dart';
 import 'package:flutter/material.dart';
+
+class Product with ChangeNotifier {
+  final id;
+  final title;
+  final imageUrl;
+  final description;
+  final price;
+  bool isFavorite;
+
+  Product(
+      {@required this.description,
+      @required this.id,
+      @required this.imageUrl,
+      @required this.price,
+      @required this.title,
+      this.isFavorite = false});
+
+  void toggleFavorite() {
+    isFavorite = !isFavorite;
+    notifyListeners();
+  }
+}
 
 class Products with ChangeNotifier {
   List<Product> items = [
