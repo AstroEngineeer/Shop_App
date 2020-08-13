@@ -1,7 +1,7 @@
 import 'package:Shop_App/providers/cart.dart';
 import 'package:flutter/material.dart';
 
-class OrderItem with ChangeNotifier {
+class OrderItem {
   final id;
   final price;
   final List<CartItem> products;
