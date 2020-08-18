@@ -79,4 +79,26 @@ class Products with ChangeNotifier {
   Product getById(String id) {
     return items.firstWhere((element) => element.id == id);
   }
+
+  void addProduct(Product p) {
+    var product = Product(
+        description: p.description,
+        id: DateTime.now().toString(),
+        imageUrl: p.imageUrl,
+        price: p.price,
+        title: p.title);
+    items.add(product);
+    notifyListeners();
+  }
+
+  void updateProduct(String id, Product p) {
+    final index = items.indexWhere((element) => element.id == id);
+    items[index] = p;
+    notifyListeners();
+  }
+
+  void removeProduct(String id) {
+    items.removeWhere((element) => element.id == id);
+    notifyListeners();
+  }
 }
