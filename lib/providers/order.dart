@@ -1,5 +1,7 @@
 import 'package:Shop_App/providers/cart.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class OrderItem {
   final id;
@@ -21,13 +23,60 @@ class Orders with ChangeNotifier {
     return [..._items];
   }
 
-  void addItem(List<CartItem> i, double total) {
+  Future<void> fetchOrders() async {
+    const url = "https://shop-app-flutter-459e5.firebaseio.com/orders.json";
+    var response = await http.get(url);
+    var fetchedOrders = json.decode(response.body) as Map<String, dynamic>;
+    if (fetchedOrders == null) {
+      return;
+    }
+    //print(json.decode(response.body));
+    List<OrderItem> orders = [];
+    fetchedOrders.forEach((key, value) {
+      //print(value['Date']);
+      orders.add(
+        OrderItem(
+          id: key,
+          date: DateTime.parse(value['Date']),
+          price: value['Price'],
+          products: (value['Items'] as List<dynamic>)
+              .map(
+                (e) => CartItem(
+                    id: e['id'],
+                    title: e['title'],
+                    quantity: e['quantity'],
+                    price: e['price']),
+              )
+              .toList(),
+        ),
+      );
+    });
+    _items = orders;
+    notifyListeners();
+  }
+
+  Future<void> addItem(List<CartItem> i, double total) async {
+    var timeStamp = DateTime.now();
+    const url = "https://shop-app-flutter-459e5.firebaseio.com/orders.json";
+    var response = await http.post(url,
+        body: json.encode({
+          "Date": timeStamp.toIso8601String(),
+          "Price": total,
+          "Items": i
+              .map((e) => {
+                    "id": e.id,
+                    "price": e.price,
+                    "quantity": e.quantity,
+                    "title": e.title
+                  })
+              .toList()
+        }));
     _items.insert(
         0,
         OrderItem(
-            id: DateTime.now().toString(),
+            id: json.decode(response.body)['name'],
             price: total,
-            date: DateTime.now(),
+            date: timeStamp,
             products: i));
     notifyListeners();
   }

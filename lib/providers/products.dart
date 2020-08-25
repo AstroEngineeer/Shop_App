@@ -19,9 +19,22 @@ class Product with ChangeNotifier {
       @required this.title,
       this.isFavorite = false});
 
-  void toggleFavorite() {
-    isFavorite = !isFavorite;
-    notifyListeners();
+  void toggleFavorite() async {
+    final url =
+        "https://shop-app-flutter-459e5.firebaseio.com/products/$id.json";
+    try {
+      var response = await http.patch(url,
+          body: json.encode({
+            "isFavorite": !isFavorite,
+          }));
+      if (response.statusCode >= 400) {
+        throw HttpException("Error in isFavorite");
+      }
+      isFavorite = !isFavorite;
+      notifyListeners();
+    } catch (error) {
+      print(error.toString());
+    }
   }
 }
 
@@ -89,6 +102,9 @@ class Products with ChangeNotifier {
       var response = await http.get(url);
       var fetchedProduct = json.decode(response.body) as Map<String, dynamic>;
       //print(fetchedProduct);
+      if (fetchedProduct == null) {
+        return;
+      }
       List<Product> products = [];
       fetchedProduct.forEach((key, value) {
         products.add(
