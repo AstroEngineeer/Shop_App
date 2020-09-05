@@ -19,18 +19,19 @@ class Product with ChangeNotifier {
       @required this.title,
       this.isFavorite = false});
 
-  void toggleFavorite() async {
+  void toggleFavorite(String authToken, String userId) async {
     final url =
-        "https://shop-app-flutter-459e5.firebaseio.com/products/$id.json";
+        "https://shop-app-flutter-459e5.firebaseio.com/userFavorites/$userId/$id.json?auth=$authToken";
     try {
-      var response = await http.patch(url,
-          body: json.encode({
-            "isFavorite": !isFavorite,
-          }));
+      isFavorite = !isFavorite;
+      var response = await http.put(url,
+          body: json.encode(
+            isFavorite,
+          ));
       if (response.statusCode >= 400) {
+        isFavorite = !isFavorite;
         throw HttpException("Error in isFavorite");
       }
-      isFavorite = !isFavorite;
       notifyListeners();
     } catch (error) {
       print(error.toString());
@@ -73,6 +74,9 @@ class Products with ChangeNotifier {
     //       'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
     // ),
   ];
+  String authToken;
+  String userId;
+  Products(this.authToken, this.items, this.userId);
 
   bool showFavoriteOnly = false;
 
@@ -96,8 +100,10 @@ class Products with ChangeNotifier {
     return items.firstWhere((element) => element.id == id);
   }
 
-  Future<void> fetchProducts() async {
-    const url = "https://shop-app-flutter-459e5.firebaseio.com/products.json";
+  Future<void> fetchProducts([bool user = false]) async {
+    var userproducts = user ? 'orderBy="creatorid"&equalTo="$userId"' : "";
+    var url =
+        "https://shop-app-flutter-459e5.firebaseio.com/products.json?auth=$authToken&$userproducts";
     try {
       var response = await http.get(url);
       var fetchedProduct = json.decode(response.body) as Map<String, dynamic>;
@@ -105,6 +111,10 @@ class Products with ChangeNotifier {
       if (fetchedProduct == null) {
         return;
       }
+      url =
+          "https://shop-app-flutter-459e5.firebaseio.com/userFavorites/$userId.json?auth=$authToken";
+      final favouriteResponse = await http.get(url);
+      var favoriteData = json.decode(favouriteResponse.body);
       List<Product> products = [];
       fetchedProduct.forEach((key, value) {
         products.add(
@@ -114,7 +124,8 @@ class Products with ChangeNotifier {
               imageUrl: value['ImageUrl'],
               price: value['Price'],
               title: value['Title'],
-              isFavorite: value['isFavorite']),
+              isFavorite:
+                  favoriteData == null ? false : favoriteData[key] ?? false),
         );
       });
       items = products;
@@ -125,16 +136,17 @@ class Products with ChangeNotifier {
   }
 
   Future<void> addProduct(Product p) async {
-    const url = "https://shop-app-flutter-459e5.firebaseio.com/products.json";
+    final url =
+        "https://shop-app-flutter-459e5.firebaseio.com/products.json?auth=$authToken";
     try {
       var response = await http.post(
         url,
         body: json.encode({
+          "creatorid": userId,
           "Title": p.title,
           "Description": p.description,
           "Price": p.price,
           "ImageUrl": p.imageUrl,
-          'isFavorite': p.isFavorite
         }),
       );
       var product = Product(
@@ -153,7 +165,7 @@ class Products with ChangeNotifier {
   Future<void> updateProduct(String id, Product p) async {
     final index = items.indexWhere((element) => element.id == id);
     final url =
-        "https://shop-app-flutter-459e5.firebaseio.com/products/$id.json";
+        "https://shop-app-flutter-459e5.firebaseio.com/products/$id.json?auth=$authToken";
 
     await http.patch(
       url,
@@ -171,7 +183,7 @@ class Products with ChangeNotifier {
 
   Future<void> removeProduct(String id) async {
     final url =
-        "https://shop-app-flutter-459e5.firebaseio.com/products/$id.json";
+        "https://shop-app-flutter-459e5.firebaseio.com/products/$id.json?auth=$authToken";
     //final index = items.indexWhere((element) => element.id == id);
     //final removedProduct = items[index];
     var response = await http.delete(url);
