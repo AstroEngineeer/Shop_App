@@ -9,6 +9,7 @@ import 'package:Shop_App/screens/product_details_screen.dart';
 import 'package:Shop_App/screens/products_overview_screen.dart';
 import 'package:Shop_App/screens/shopping_cart_screen.dart';
 import 'package:Shop_App/screens/user_product_screen.dart';
+import 'package:Shop_App/widgets/splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -41,8 +42,15 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(primarySwatch: Colors.cyan),
           title: "Shop App",
           routes: {
-            "/": (ctx) =>
-                authData.isAuth ? ProductsOverviewScreen() : AuthScreen(),
+            "/": (ctx) => authData.isAuth
+                ? ProductsOverviewScreen()
+                : FutureBuilder(
+                    future: authData.tryAutoLogin(),
+                    builder: (context, snapshot) =>
+                        snapshot.connectionState == ConnectionState.waiting
+                            ? SplashScreen()
+                            : AuthScreen(),
+                  ),
             ProductDetailsScreen.routeName: (ctx) => ProductDetailsScreen(),
             ShoppingCartScreen.routeName: (ctx) => ShoppingCartScreen(),
             OrderScreen.routeName: (ctx) => OrderScreen(),

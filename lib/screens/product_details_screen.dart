@@ -16,10 +16,13 @@ class ProductDetailsScreen extends StatelessWidget {
       ),
       body: Column(
         children: <Widget>[
-          Image.network(
-            item.imageUrl,
-            fit: BoxFit.cover,
-            width: double.infinity,
+          Hero(
+            tag: item.id,
+            child: Image.network(
+              item.imageUrl,
+              fit: BoxFit.cover,
+              width: double.infinity,
+            ),
           ),
           Text(
             item.title,
