@@ -25,6 +25,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => Auth(),
         ),
+        // ignore: missing_required_param
         ChangeNotifierProxyProvider<Auth, Products>(
           update: (context, value, previous) => Products(value.token,
               previous == null ? [] : previous.items, value.userId),
@@ -32,6 +33,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(
           create: (context) => Cart(),
         ),
+        // ignore: missing_required_param
         ChangeNotifierProxyProvider<Auth, Orders>(
           update: (context, value, previous) => Orders(value.token,
               previous == null ? [] : previous.items, value.userId),
