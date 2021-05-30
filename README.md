@@ -1,6 +1,6 @@
 # Shop_App
 
-A new Flutter project.
+An ecommerce mobile app developed using flutter. 
 
 ## Getting Started
 
